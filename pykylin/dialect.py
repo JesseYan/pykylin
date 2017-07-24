@@ -136,16 +136,24 @@ class KylinDialect(default.DefaultDialect):
 
     def create_connect_args(self, url):
         opts = url.translate_connect_args()
+        api_prefix = 'kylin/api/'
         args = {
             'username': opts['username'],
             'password': opts['password'],
-            'endpoint': 'http://%s:%s/%s' % (opts['host'], opts['port'], opts['database'])
+            'endpoint': 'http://%s:%s/%s' % (opts['host'], opts['port'], api_prefix)
+            # modified login url
         }
         args.update(url.query)
         return [], args
 
-    def get_table_names(self, connection, schema=None, **kw):
+    def get_table_names(self, engine, schema=None, **kw):
+        connection = engine.contextual_connect()
+        # modified to solve "'engine' object has no attribute 'connection'"
         return connection.connection.list_tables()
+
+    def get_schema_names(self, engine, schema=None, **kw):  # implement list_schema
+        connection = engine.contextual_connect()
+        return connection.connection.list_schemas()
 
     def has_table(self, connection, table_name, schema=None):
         return table_name in self.get_table_names(connection, table_name, schema)
@@ -163,7 +171,7 @@ class KylinDialect(default.DefaultDialect):
             tpe_size = column['column_SIZE']
             args = (tpe_size,)
             tpe = KYLIN_TYPE_MAP['VARCHAR']
-        elif tpe_NAME == 'DECIMAL':
+        elif tpe_NAME.startswith('DECIMAL'):
             digit_size = column['decimal_DIGITS']
             args = (digit_size,)
             tpe = KYLIN_TYPE_MAP['DECIMAL']

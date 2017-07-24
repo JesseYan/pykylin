@@ -5,6 +5,8 @@ from dateutil import parser
 from .errors import Error
 from .log import logger
 
+import re
+
 class Cursor(object):
 
     def __init__(self, connection):
@@ -24,6 +26,16 @@ class Cursor(object):
 
     def execute(self, operation, parameters={}, acceptPartial=True, limit=None, offset=0):
         sql = operation % parameters
+
+        replace = re.compile(r'\s+count\s+|\s+count$')
+        replace.sub('superset_count',sql)   # replace the conflict keywork 'count'
+
+        pattern = re.compile(r'\d{2}:\d{2}:\d{2}')
+        sql = pattern.sub('', sql)
+        # solve the issue that kylin doesn't support hh:mm:ss
+
+        logger.debug(sql)
+
         data = {
             'sql': sql,
             'offset': offset,
@@ -35,6 +47,11 @@ class Cursor(object):
         resp = self.connection.proxy.post('query', json=data)
 
         column_metas = resp['columnMetas']
+
+        for c in column_metas:  # return metadata in lower case
+            c['label'] = str(c['label']).lower()
+            c['name'] = str(c['name']).lower()
+
         self.description = [
             [c['label'], c['columnTypeName'],
              c['displaySize'], 0,
@@ -54,11 +71,14 @@ class Cursor(object):
             column = meta[i]
             tpe = column[1]
             val = result[i]
+            if val is None:  # handle null return
+                pass
             if tpe == 'DATE':
                 val = parser.parse(val)
             elif tpe == 'BIGINT' or tpe == 'INT' or tpe == 'TINYINT':
                 val = int(val)
-            elif tpe == 'DOUBLE' or tpe == 'FLOAT':
+            elif tpe == 'DOUBLE' or tpe == 'FLOAT' or tpe == 'DECIMAL':
+                # DECIMAL type now recognized as float
                 val = float(val)
             elif tpe == 'BOOLEAN':
                 val = (val == 'true')
