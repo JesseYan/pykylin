@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 from dateutil import parser
@@ -27,14 +28,22 @@ class Cursor(object):
     def execute(self, operation, parameters={}, acceptPartial=True, limit=None, offset=0):
         sql = operation % parameters
 
-        replace = re.compile(r'\s+count\s+|\s+count$')
-        replace.sub('superset_count',sql)   # replace the conflict keywork 'count'
+        logger.debug('orignal %s' % sql)
 
-        pattern = re.compile(r'\d{2}:\d{2}:\d{2}')
+        pattern = re.compile(r'(\s)+count(\s)+|(\s)+count$')
+        sql = pattern.sub(' __superset_count ', sql)
+        # replace the conflict keywork 'count'; 解决superset与kylin关键字‘count’冲突
+
+        pattern = re.compile(r'(\s)*\d{2}:\d{2}:\d{2}')
         sql = pattern.sub('', sql)
-        # solve the issue that kylin doesn't support hh:mm:ss
+        # solve the issue that kylin doesn't support hh:mm:ss; 解决kylin不支持时分秒
 
-        logger.debug(sql)
+        pattern = re.compile(r'(\s)+DEFAULT\.|(\s)+default\.')
+        sql = pattern.sub(' ', sql)
+        # solve for the error when the schema is 'default'; 解决schema是default时报错问题
+
+
+        logger.debug('aftermod %s' % sql)
 
         data = {
             'sql': sql,
@@ -48,7 +57,7 @@ class Cursor(object):
 
         column_metas = resp['columnMetas']
 
-        for c in column_metas:  # return metadata in lower case
+        for c in column_metas:  # return metadata in lower case; 列名转换成小写
             c['label'] = str(c['label']).lower()
             c['name'] = str(c['name']).lower()
 
@@ -71,7 +80,7 @@ class Cursor(object):
             column = meta[i]
             tpe = column[1]
             val = result[i]
-            if val is None:  # handle null return
+            if val is None:  # handle null return; 应对返回空值的情况
                 pass
             if tpe == 'DATE':
                 val = parser.parse(val)

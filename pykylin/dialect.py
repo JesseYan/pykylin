@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 from sqlalchemy import pool
@@ -149,9 +150,11 @@ class KylinDialect(default.DefaultDialect):
     def get_table_names(self, engine, schema=None, **kw):
         connection = engine.contextual_connect()
         # modified to solve "'engine' object has no attribute 'connection'"
+        # 解决"'engine' object has no attribute 'connection'"错误
         return connection.connection.list_tables()
 
-    def get_schema_names(self, engine, schema=None, **kw):  # implement list_schema
+    def get_schema_names(self, engine, schema=None, **kw):
+        # implement list_schema; 添加list_schema方法
         connection = engine.contextual_connect()
         return connection.connection.list_schemas()
 
@@ -161,7 +164,8 @@ class KylinDialect(default.DefaultDialect):
     def has_sequence(self, connection, sequence_name, schema=None):
         return False
 
-    def get_columns(self, connection, table_name, schema=None, **kw):
+    def get_columns(self, engine, table_name, schema=None, **kw):
+        connection = engine.contextual_connect()
         cols = connection.connection.list_columns(table_name)
         return [self._map_column_type(c) for c in cols]
 
