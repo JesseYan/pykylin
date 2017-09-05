@@ -25,11 +25,11 @@ Installation
 
 ~~$ pip install pykylin~~
 
-or from source::
-
-    $ pip install -r ./requirements.txt
-    $ python setup.py install
-
+or from source
+```
+$ pip install -r ./requirements.txt
+$ python setup.py install
+```
 
 More info
 ---------
