@@ -21,9 +21,9 @@ Original Page
 Installation
 ------------
 
-To install this driver run::
+~~To install this driver run~~
 
-    $ pip install pykylin
+~~$ pip install pykylin~~
 
 or from source::
 
