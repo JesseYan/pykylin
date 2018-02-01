@@ -38,7 +38,14 @@ More info
  * http://www.sqlalchemy.org/
 
 
+Fixed bug by JesseYan
+---------
+* 229bfc315ffc70d7b1c5190f6f68f50fcb28c872	更新setup.py
+* 59e7913da2bd8c34853c9cf0febb03632b69cdb5	修改BUG：get_table_names
+
+
 Authors
 -------
 
  * Wu Xiang
+ * Jesse Yan
