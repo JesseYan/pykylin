@@ -30,6 +30,10 @@ or from source
 $ pip install -r ./requirements.txt
 $ python setup.py install
 ```
+or
+```
+$ pip install git+https://github.com/JesseYan/pykylin
+```
 
 More info
 ---------
