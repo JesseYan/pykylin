@@ -147,10 +147,8 @@ class KylinDialect(default.DefaultDialect):
         args.update(url.query)
         return [], args
 
-    def get_table_names(self, engine, schema=None, **kw):
-        connection = engine.contextual_connect()
-        # modified to solve "'engine' object has no attribute 'connection'"
-        # 解决"'engine' object has no attribute 'connection'"错误
+    def get_table_names(self, connection, schema=None, *args, **kw):
+        # connection = engine.contextual_connect()
         return connection.connection.list_tables()
 
     def get_schema_names(self, engine, schema=None, **kw):

@@ -1,3 +1,6 @@
 # remove python bytecode files
 *.pyc
 .idea/
+build/
+dist/
+pykylin.egg-info/

@@ -12,8 +12,8 @@ setup_params = dict(
     name="pykylin",
     version=version,
     description="Kylin DBAPI Driver",
-    author="Wu Xiang",
-    author_email="w.xiang7@gmail.com",
+    author="Wu Xiang, Jesse Yan",
+    author_email="w.xiang7@gmail.com, jiayiyan2017@163.com",
     long_description=readme,
     classifiers=[
         "Development Status :: 3 - Alpha",
